@@ -3,5 +3,5 @@ project(gbemu)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
-add_executable(gbemu ${SOURCE_FILES})
+set(SOURCE_FILES main.cpp cpu.cpp cpu.h opcodes.cpp cbopcodes.cpp cbopcodes.h)
+add_executable(gbemu ${SOURCE_FILES} cpu.cpp cpu.h opcodes.cpp cbopcodes.cpp cbopcodes.h)
