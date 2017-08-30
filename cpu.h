@@ -30,11 +30,57 @@ private:
 
     // Programs are accessed through the same address bus as normal memory;
     // An instruction can be anywhere between one and three bytes.
+    struct instruction {
+        const char* opcodeDesriptor; // description of the opcode
+        unsigned int opcodeArgc;     // number of arguments the opcode takes
+        void* opcodeHandler;         // function used to handle that opcode
+    };
 
     // Registers: A, B, C, D, E, H, and L. Each of them is one byte, so each one can hold a
     // value from 0 to 255.
     struct cpuRegisters {
-        unsigned char va, vb, vc, vd, ve, vf, vh, vl; // 8-bit registers
+        // each of the registers must EITHER occur separately (i.e. each of b,c has own value)
+        // or combined into effectively a "single register" for holding 16-bit values
+        struct {
+            union {
+                struct {
+                    unsigned char a;
+                    unsigned char f;
+                };
+                unsigned short af;
+            };
+        };
+
+        struct {
+            union {
+                struct {
+                    unsigned char b;
+                    unsigned char c;
+                };
+                unsigned short bc;
+            };
+        };
+
+        struct {
+            union {
+                struct {
+                    unsigned char d;
+                    unsigned char e;
+                };
+                unsigned short de;
+            };
+        };
+
+        struct {
+            union {
+                struct {
+                    unsigned char h;
+                    unsigned char l;
+                };
+                unsigned short hl;
+            };
+        };
+
         unsigned short pc, sp;                        // 16-bit registers
     };
     cpuRegisters m_registers;
@@ -47,8 +93,7 @@ private:
     // the context of the opcodes rather than in independent contexts
 
     // general (1-byte) opcodes: non-CB
-    void h_nop();
-    void h_ld();
+    void h_ld(); // 8-bit address store
 
     void h_inc();
     void h_dec();
@@ -70,6 +115,15 @@ private:
 
     void h_adc();
     void h_sbc();
+
+
+
+public:
+    Cpu();
+    ~Cpu();
+
+    void loadGame(const char* filename);
+    void step();
 
     // we have two types of opcodes:
     // - 1 bytes (regular opcodes)
@@ -587,13 +641,6 @@ private:
     void opcode_cb0xFD();
     void opcode_cb0xFE();
     void opcode_cb0xFF();
-
-public:
-    Cpu();
-    ~Cpu();
-
-    void loadGame(const char* filename);
-    void step();
 };
 
 #endif //GBEMU_CPU_H
